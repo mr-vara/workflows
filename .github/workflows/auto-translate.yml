@@ -55,11 +55,22 @@ jobs:
           fi
           echo "TEXT_DOMAIN=$TEXT_DOMAIN" >> "$GITHUB_OUTPUT"
 
+      - name: Download translate.py from parent repo
+        run: |
+          mkdir -p .github/scripts
+          curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3.raw" \
+              -o .github/scripts/translate.py \
+              https://api.github.com/repos/mr-vara/workflows/contents/.github/scripts/translate.py?ref=main
+
       - name: Translate PO and JSON files
         env:
           TRANSLATOR_API_KEY: ${{ secrets.TRANSLATOR_API_KEY }}
           TEXT_DOMAIN: ${{ steps.config.outputs.TEXT_DOMAIN }}
         run: python .github/scripts/translate.py
+
+      - name: Remove downloaded translate script
+        run: rm .github/scripts/translate.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
