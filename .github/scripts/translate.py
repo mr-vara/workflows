@@ -103,7 +103,7 @@ for path in Path('.').rglob('*.json'):
         for key, translated in zip(key_info_map.keys(), translated_texts):
             _, had_context, _ = key_info_map[key]
             if had_context:
-            translated = re.sub(r'\s*\(.*\)$', '', translated).strip()
+                translated = re.sub(r'\s*\(.*\)$', '', translated).strip()
             messages[key] = [translated.strip()]
 
         with open(path, 'w', encoding='utf-8') as f:
