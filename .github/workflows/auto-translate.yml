@@ -18,24 +18,24 @@ permissions: {}
 
 jobs:
   auto-translate:
-    name: Auto-Translate and Create PR
+    name: 'Auto-Translate and Create PR'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
 
     steps:
-      - name: Skip if a 'translations' PR already exists
+      - name: 'Check for existing translations PR and exit if found'
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          prs=$(gh pr list --state open --label "translations" --json number --jq '.[].number')
+          prs=$(gh pr list --state open --label 'translations' --json number --jq '.[].number')
           if [ -n "$prs" ]; then
-            echo "A PR with 'translations' label already exists: $prs"
-            echo "Exiting workflow."
+            echo 'A PR with "translations" label already exists: $prs'
+            echo 'Exiting workflow.'
             exit 0
           else
-            echo "No existing 'translations' PR found. Continuing..."
+            echo 'No existing translations PR found. Continuing...'
 
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
