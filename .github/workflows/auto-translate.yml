@@ -16,7 +16,7 @@ on:
     secrets:
       TRANSLATOR_API_KEY:
         required: true
-      NEWFOLD_ACCESS_TOKEN:
+      PERSONAL_ACCESS_TOKEN:
         required: true
 
 permissions: {}
@@ -95,7 +95,7 @@ jobs:
         if: steps.check_pr.outputs.found == 'false'
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
-          token: ${{ secrets.NEWFOLD_ACCESS_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           commit-message: Auto-translated PO and JSON files
           branch: ${{ steps.vars.outputs.BRANCH }}
           title: Updating translation files on ${{ steps.datetime.outputs.timestamp }}
