@@ -114,9 +114,6 @@ jobs:
           BRANCH_NAME: ${{ steps.vars.outputs.BRANCH }}
           TIMESTAMP: ${{ steps.datetime.outputs.timestamp }}
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-
           git checkout -b "$BRANCH_NAME"
           git add .
           git commit -m "Auto-translated PO and JSON files"
