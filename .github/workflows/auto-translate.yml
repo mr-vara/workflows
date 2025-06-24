@@ -81,18 +81,18 @@ jobs:
       - name: Download translate.py to temp directory
         if: steps.check_pr.outputs.found == 'false'
         run: |
-          mkdir -p "$RUNNER_TEMP/dist"
-          git clone --filter=blob:none --sparse https://github.com/mr-vara/workflows.git "$RUNNER_TEMP/workflows"
-          cd "$RUNNER_TEMP/workflows"
-          git sparse-checkout set .github/scripts/translate.py
-          cp .github/scripts/translate.py "$RUNNER_TEMP/dist/translate.py"
+          mkdir -p "$RUNNER_TEMP/_temp"
+          git clone --filter=blob:none --sparse https://github.com/mr-vara/workflows.git "$RUNNER_TEMP/_temp/workflows"
+          cd "$RUNNER_TEMP/_temp/workflows"
+          git sparse-checkout set .github/scripts
+          cp .github/scripts/translate.py "$RUNNER_TEMP/_temp/translate.py"
 
       - name: Translate PO and JSON files
         if: steps.check_pr.outputs.found == 'false'
         env:
           TRANSLATOR_API_KEY: ${{ secrets.TRANSLATOR_API_KEY }}
           TEXT_DOMAIN: ${{ inputs.text_domain }}
-        run: python "$RUNNER_TEMP/dist/translate.py"
+        run: python "$RUNNER_TEMP/_temp/translate.py"
 
       # - name: Remove downloaded translate script
       #   if: steps.check_pr.outputs.found == 'false'
