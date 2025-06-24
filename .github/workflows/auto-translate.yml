@@ -158,7 +158,7 @@ jobs:
 
           # Commit and push (gh auth will handle credentials)
           git commit -m "Auto-translated PO and JSON files"
-          git push --set-upstream origin "$BRANCH_NAME"
+          git push --force origin "$BRANCH_NAME"
 
           # Build PR body
           PR_BODY="$({
