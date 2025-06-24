@@ -107,6 +107,31 @@ jobs:
       #       The workflow run responsible for creating this pull request can be found [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
       #     labels: translations
 
+      # - name: Create Pull Request to update translations
+      #   if: steps.check_pr.outputs.found == 'false'
+      #   env:
+      #     GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      #     BRANCH_NAME: ${{ steps.vars.outputs.BRANCH }}
+      #     TIMESTAMP: ${{ steps.datetime.outputs.timestamp }}
+      #   run: |
+      #     git checkout -b "$BRANCH_NAME"
+      #     git add .
+      #     git commit -m "Auto-translated PO and JSON files"
+      #     git push origin "$BRANCH_NAME"
+
+      #     PR_BODY="$({
+      #       echo "This pull request contains automatic translations of PO and JSON files."
+      #       echo ""
+      #       echo "The workflow run responsible for creating this pull request can be found [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+      #     })"
+
+      #     gh pr create \
+      #       --title "Updating translation files on ${TIMESTAMP}" \
+      #       --body "$PR_BODY" \
+      #       --base "${{ github.event.repository.default_branch }}" \
+      #       --head "$BRANCH_NAME" \
+      #       --label "translations"
+
       - name: Create Pull Request to update translations
         if: steps.check_pr.outputs.found == 'false'
         env:
@@ -114,17 +139,35 @@ jobs:
           BRANCH_NAME: ${{ steps.vars.outputs.BRANCH }}
           TIMESTAMP: ${{ steps.datetime.outputs.timestamp }}
         run: |
-          git checkout -b "$BRANCH_NAME"
-          git add .
-          git commit -m "Auto-translated PO and JSON files"
-          git push origin "$BRANCH_NAME"
+          # Authenticate GitHub CLI (this also sets up Git credentials helper internally)
+          echo "$GH_TOKEN" | gh auth login --with-token
 
+          # Configure Git identity
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          # Create or reset to the branch
+          git checkout -B "$BRANCH_NAME"
+
+          # Stage changes
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit. Skipping PR creation."
+            exit 0
+          fi
+
+          # Commit and push (gh auth will handle credentials)
+          git commit -m "Auto-translated PO and JSON files"
+          git push --set-upstream origin "$BRANCH_NAME"
+
+          # Build PR body
           PR_BODY="$({
             echo "This pull request contains automatic translations of PO and JSON files."
             echo ""
             echo "The workflow run responsible for creating this pull request can be found [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
           })"
 
+          # Create PR using GitHub CLI
           gh pr create \
             --title "Updating translation files on ${TIMESTAMP}" \
             --body "$PR_BODY" \
