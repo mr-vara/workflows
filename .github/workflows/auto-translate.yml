@@ -93,16 +93,44 @@ jobs:
         id: datetime
         run: echo "timestamp=$(date -u '+%B %d, %Y at %H:%M UTC')" >> "$GITHUB_OUTPUT"
 
-      - name: Create Pull Request
-        if: steps.check_pr.outputs.found == 'false'
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e  # v7.0.8
-        with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          commit-message: Auto-translated PO and JSON files
-          branch: ${{ steps.vars.outputs.BRANCH }}
-          title: Updating translation files on ${{ steps.datetime.outputs.timestamp }}
-          body: |
-            This pull request contains automatic translations of PO and JSON files.
+      # - name: Create Pull Request
+      #   if: steps.check_pr.outputs.found == 'false'
+      #   uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e  # v7.0.8
+      #   with:
+      #     token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      #     commit-message: Auto-translated PO and JSON files
+      #     branch: ${{ steps.vars.outputs.BRANCH }}
+      #     title: Updating translation files on ${{ steps.datetime.outputs.timestamp }}
+      #     body: |
+      #       This pull request contains automatic translations of PO and JSON files.
 
-            The workflow run responsible for creating this pull request can be found [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-          labels: translations
+      #       The workflow run responsible for creating this pull request can be found [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+      #     labels: translations
+
+      - name: Create Pull Request to update translations
+        if: steps.check_pr.outputs.found == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          BRANCH_NAME: ${{ steps.vars.outputs.BRANCH }}
+          TIMESTAMP: ${{ steps.datetime.outputs.timestamp }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git checkout -b "$BRANCH_NAME"
+          git add .
+          git commit -m "Auto-translated PO and JSON files"
+          git push origin "$BRANCH_NAME"
+
+          PR_BODY="$({
+            echo "This pull request contains automatic translations of PO and JSON files."
+            echo ""
+            echo "The workflow run responsible for creating this pull request can be found [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          })"
+
+          gh pr create \
+            --title "Updating translation files on ${TIMESTAMP}" \
+            --body "$PR_BODY" \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$BRANCH_NAME" \
+            --label "translations"
