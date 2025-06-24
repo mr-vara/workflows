@@ -143,6 +143,9 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
+          # Ensure remote uses token for Git push
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
           # Create or reset to the branch
           git checkout -B "$BRANCH_NAME"
 
