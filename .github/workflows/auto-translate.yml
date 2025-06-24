@@ -139,9 +139,6 @@ jobs:
           BRANCH_NAME: ${{ steps.vars.outputs.BRANCH }}
           TIMESTAMP: ${{ steps.datetime.outputs.timestamp }}
         run: |
-          # Authenticate GitHub CLI (this also sets up Git credentials helper internally)
-          echo "$GH_TOKEN" | gh auth login --with-token
-
           # Configure Git identity
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
