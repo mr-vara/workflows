@@ -42,6 +42,9 @@ jobs:
             echo "found=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Fetch all remote branches
+        run: git fetch origin
+
       # When the branch already exists remotely without a corresponding pull request, it should be deleted to ensure
       # that the pull request can be cleanly merged with all changes from the `BASE` branch present.
       - name: Check if branch already exists remotely
@@ -69,9 +72,7 @@ jobs:
 
       - name: Pull any changes from origin
         if: steps.check_pr.outputs.found != 'false'
-        run: |
-          git branch --set-upstream-to=origin/"$PR_BRANCH_NAME"
-          git pull
+        run: git pull
 
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
